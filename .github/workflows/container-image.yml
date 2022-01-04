@@ -1,7 +1,6 @@
 on:
   release:
-    types: 
-      - released
+    types: [released]
 
 name: realm Container Image Build
 
