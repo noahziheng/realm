@@ -1,4 +1,10 @@
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of image'
+        required: true
+        default: 'test'
   push:
     tags:
       - v*
@@ -68,13 +74,15 @@ jobs:
           
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Echo release version
+        run: echo ${{ env.RELEASE_VERSION }}
       - name: Build and push images with latest(debian)
         uses: docker/build-push-action@v2
         with:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ github.repository }}:latest, ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag || env.RELEASE_VERSION }}
           
       - name: Build and push images with alpine
         uses: docker/build-push-action@v2
@@ -82,5 +90,5 @@ jobs:
           context: .
           file: ./Dockerfile.alpine
           push: true
-          tags: ghcr.io/${{ github.repository }}:alpine
+          tags: ghcr.io/${{ github.repository }}:alpine, ghcr.io/${{ github.repository }}:${{ github.event.inputs.tag || env.RELEASE_VERSION }}-alpine
           
